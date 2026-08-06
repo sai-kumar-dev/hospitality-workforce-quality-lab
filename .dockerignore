@@ -1,0 +1,16 @@
+.git
+.github
+.venv
+**/__pycache__
+**/.pytest_cache
+**/.ruff_cache
+**/.mypy_cache
+apps/web/node_modules
+apps/web/dist
+artifacts
+htmlcov
+.coverage*
+.env
+*.sqlite3
+*.db
+

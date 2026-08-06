@@ -1,0 +1,5 @@
+Alembic migrations for the ShiftBridge API.
+
+From the repository root:
+
+    alembic -c apps/api/alembic.ini upgrade head

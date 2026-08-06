@@ -1,0 +1,35 @@
+# Python
+.venv/
+.uv-cache/
+.uv-python/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.hypothesis/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# JavaScript
+node_modules/
+apps/web/dist/
+*.tsbuildinfo
+
+# Runtime and test artifacts
+.env
+artifacts/
+playwright-report/
+test-results/
+storage-state/
+*.sqlite3
+*.db
+
+# IDE and OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

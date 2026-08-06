@@ -1,0 +1,85 @@
+name: shiftbridge-quality-lab
+
+services:
+  db:
+    image: postgres:18.4-alpine
+    environment:
+      POSTGRES_DB: shiftbridge
+      POSTGRES_USER: shiftbridge
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-shiftbridge_dev_only}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shiftbridge -d shiftbridge"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+    volumes:
+      - shiftbridge-db:/var/lib/postgresql
+    networks:
+      - shiftbridge
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      ENVIRONMENT: development
+      DATABASE_URL: postgresql+psycopg://shiftbridge:${POSTGRES_PASSWORD:-shiftbridge_dev_only}@db:5432/shiftbridge
+      SESSION_SECRET: ${SESSION_SECRET:-dev-only-shiftbridge-session-secret-change-me}
+      SESSION_TTL_MINUTES: ${SESSION_TTL_MINUTES:-30}
+      COOKIE_SECURE: "false"
+      CORS_ORIGINS: http://localhost:4173,http://127.0.0.1:4173
+      AUTO_CREATE_SCHEMA: "false"
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      SEED_DEMO_DATA: "true"
+      WEB_CONCURRENCY: "2"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - >-
+          import urllib.request;
+          urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=2)
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    ports:
+      - "8000:8000"
+    networks:
+      - shiftbridge
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: /api
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:8080/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+    ports:
+      - "4173:8080"
+    networks:
+      - shiftbridge
+    restart: unless-stopped
+
+networks:
+  shiftbridge:
+    name: shiftbridge-quality-lab
+
+volumes:
+  shiftbridge-db:
+    name: shiftbridge-quality-lab-db

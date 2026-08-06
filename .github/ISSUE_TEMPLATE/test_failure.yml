@@ -1,0 +1,35 @@
+name: Automated test failure
+description: Track a reproducible product, test, data, environment, or unknown failure.
+title: "[Test failure]: "
+labels: ["test-failure"]
+body:
+  - type: input
+    id: nodeid
+    attributes:
+      label: Test node ID
+    validations:
+      required: true
+  - type: dropdown
+    id: classification
+    attributes:
+      label: Root-cause classification
+      options: [Product, Test, Environment, Data, Unknown]
+    validations:
+      required: true
+  - type: textarea
+    id: signature
+    attributes:
+      label: Failure signature and evidence
+      description: Include the normalized signature, request ID, and redacted evidence.
+    validations:
+      required: true
+  - type: input
+    id: artifacts
+    attributes:
+      label: Artifact link
+  - type: textarea
+    id: quarantine
+    attributes:
+      label: Quarantine metadata, if approved
+      description: Owner, reason, tracking issue, and expiration date are all required.
+

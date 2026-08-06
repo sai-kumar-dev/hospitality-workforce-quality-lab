@@ -1,0 +1,173 @@
+[build-system]
+requires = ["hatchling==1.31.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "shiftbridge-quality-lab"
+version = "0.1.0"
+description = "A production-minded hospitality workforce application and multi-layer QA automation lab."
+readme = "README.md"
+requires-python = ">=3.13,<3.15"
+license = { text = "MIT" }
+authors = [{ name = "ShiftBridge Quality Engineering Lab" }]
+dependencies = [
+  "alembic==1.18.5",
+  "email-validator==2.3.0",
+  "fastapi==0.141.0",
+  "httpx==0.28.1",
+  "psycopg[binary]==3.3.4",
+  "pwdlib[argon2]==0.3.0",
+  "pydantic==2.13.4",
+  "pydantic-settings==2.14.2",
+  "PyJWT==2.13.0",
+  "sqlalchemy==2.0.51",
+  "structlog==26.1.0",
+  "uvicorn[standard]==0.52.0",
+]
+
+[dependency-groups]
+dev = [
+  "coverage==7.15.2",
+  "hypothesis==6.163.0",
+  "locust==2.46.2",
+  "mypy==2.3.0",
+  "playwright==1.61.0",
+  "pytest==9.1.1",
+  "pytest-cov==7.1.0",
+  "pytest-html==4.2.0",
+  "pytest-playwright==0.8.0",
+  "pytest-xdist==3.8.0",
+  "ruff==0.16.0",
+  "schemathesis==4.24.3",
+]
+
+[project.scripts]
+shiftbridge-seed = "shiftbridge_api.db.seed:main"
+shiftbridge-triage = "shiftbridge_qa.diagnostics.triage:main"
+shiftbridge-performance-thresholds = "shiftbridge_qa.diagnostics.performance:main"
+
+[tool.hatch.build.targets.wheel]
+packages = [
+  "apps/api/src/shiftbridge_api",
+  "qa/src/shiftbridge_qa",
+]
+
+[tool.pytest.ini_options]
+addopts = [
+  "--strict-config",
+  "--strict-markers",
+  "--tb=short",
+  "-ra",
+]
+testpaths = ["apps/api/tests", "qa/tests"]
+pythonpath = ["apps/api/src", "qa/src"]
+markers = [
+  "unit: isolated framework or business-rule tests",
+  "api: HTTP API tests",
+  "contract: OpenAPI schema and property-based contract tests",
+  "ui: browser-driven user-interface tests",
+  "smoke: fast release-gating happy paths",
+  "regression: broader functional coverage",
+  "e2e: cross-layer user journeys",
+  "integration: tests spanning application dependencies",
+  "accessibility: keyboard and axe-core accessibility checks",
+  "reliability: deterministic failure-injection checks",
+  "performance: load and performance-threshold checks",
+  "serial: test requires exclusive state and must not run under xdist",
+]
+filterwarnings = [
+  "error",
+]
+
+[tool.coverage.run]
+branch = true
+parallel = true
+source = ["shiftbridge_api", "shiftbridge_qa"]
+omit = [
+  "*/migrations/*",
+  "*/tests/*",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+exclude_also = [
+  "if TYPE_CHECKING:",
+  "if __name__ == .__main__.:",
+  "raise NotImplementedError",
+]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+extend-exclude = [
+  ".hypothesis",
+  ".mypy_cache",
+  ".pytest_cache",
+  ".ruff_cache",
+  ".venv",
+  "artifacts",
+  "apps/api/migrations/versions",
+]
+
+[tool.ruff.lint]
+select = [
+  "A",
+  "ARG",
+  "ASYNC",
+  "B",
+  "BLE",
+  "C4",
+  "DTZ",
+  "E",
+  "F",
+  "FA",
+  "FAST",
+  "FBT",
+  "I",
+  "N",
+  "PERF",
+  "PIE",
+  "PL",
+  "PT",
+  "PTH",
+  "RET",
+  "RUF",
+  "S",
+  "SIM",
+  "T20",
+  "TC",
+  "TRY",
+  "UP",
+  "W",
+]
+ignore = [
+  "S101",
+  "PLR2004",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**/*.py" = ["ARG001", "S105", "S106"]
+"qa/performance/**/*.py" = ["S311"]
+"scripts/**/*.py" = ["T201", "TRY003"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["shiftbridge_api", "shiftbridge_qa"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+warn_unreachable = true
+show_error_codes = true
+pretty = true
+mypy_path = ["apps/api/src", "qa/src"]
+plugins = ["pydantic.mypy"]
+exclude = ["apps/api/migrations"]
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+
+[tool.hypothesis]
+deadline = 500
