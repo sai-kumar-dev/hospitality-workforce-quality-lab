@@ -25,7 +25,7 @@ jobs:
       HEADLESS: "true"
       SESSION_SECRET: ci-only-session-secret-with-more-than-32-characters
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v6
         with:
           python-version: "3.13.14"
