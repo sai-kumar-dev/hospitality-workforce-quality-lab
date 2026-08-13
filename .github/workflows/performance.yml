@@ -29,7 +29,7 @@ jobs:
       SESSION_SECRET: ci-only-session-secret-with-more-than-32-characters
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.13.14"
       - run: python -m pip install uv==0.12.0
